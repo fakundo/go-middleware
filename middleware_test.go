@@ -1,35 +1,52 @@
 package middleware
 
 import (
-	"fmt"
 	"testing"
 )
 
-var origin = func(a string) string {
-	fmt.Println("origin", a)
-	return "origin result" + a
+type originT = func(string) string
+
+var origin = func(p string) string {
+	return "origin:" + p
 }
 
-var md1 = Create(func(next func() string) string {
-	fmt.Println("md1")
-	return next()
-	// return "md1 result"
+var md1 = Create(func(p string, next func()) string {
+	next()
+	return "md1:" + p
+})
+
+var md2 = Create(func(next func() string) string {
+	return "md2:" + next()
 })
 
 func TestCreateMiddleware(t *testing.T) {
-	decorated := md1(origin)
-	res := decorated.(func(string) string)("qwe")
-	fmt.Println(res)
+	dec1 := md1(origin)
+	res1 := dec1.(originT)("param1")
+	want1 := "md1:param1"
+	if res1 != want1 {
+		t.Errorf("got %q, want %q", res1, want1)
+	}
 
-	// want := "Hello, world."
-	// got :=
+	dec2 := md2(origin)
+	res2 := dec2.(originT)("param2")
+	want2 := "md2:origin:param2"
+	if res2 != want2 {
+		t.Errorf("got %q, want %q", res2, want2)
+	}
 
-	// want := "Hello, world."
-	// if got := CreateMiddleware(func() {}); got != want {
-	// 	t.Errorf("Hello() = %q, want %q", got, want)
-	// }
+	dec3 := md2(md1(origin))
+	res3 := dec3.(originT)("param3")
+	want3 := "md2:md1:param3"
+	if res3 != want3 {
+		t.Errorf("got %q, want %q", res3, want3)
+	}
 }
 
 func TestUseMiddleware(t *testing.T) {
-
+	dec := Use(md2, md1, origin)
+	res := dec.(originT)("param3")
+	want := "md2:md1:param3"
+	if res != want {
+		t.Errorf("got %q, want %q", res, want)
+	}
 }

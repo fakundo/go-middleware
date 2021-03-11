@@ -42,14 +42,10 @@ func Create(middleware interface{}) func(handler interface{}) HandlerT {
 }
 
 // Use multiple middlewares
-func Use(f ...interface{}) interface{} {
-	l := len(f)
-	if l == 0 { // @todo remove this condition
-		return nil
-	}
-	if l == 1 {
+func Use(f ...interface{}) HandlerT {
+	if len(f) < 2 {
 		return f[0]
 	}
-	f0 := f[0].(func(interface{}) interface{})
+	f0 := f[0].(func(interface{}) HandlerT)
 	return f0(Use(f[1:]...))
 }
