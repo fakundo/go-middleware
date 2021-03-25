@@ -4,7 +4,7 @@
 Middleware for Go functions.
 
 Works perfectly with `socket.io` event handlers – 
-github.com/googollee/go-socket.io
+https://github.com/googollee/go-socket.io
 
 ### Installation
 
@@ -16,16 +16,16 @@ Create middleware
 
 ```go
 import (
-	middleware "github.com/fakundo/go-middleware"
-  	socketio "github.com/googollee/go-socket.io"
+  middleware "github.com/fakundo/go-middleware"
+  socketio "github.com/googollee/go-socket.io"
 )
 
 var requireAuth = middleware.Create(func(s socketio.Conn, next func()) {
-	if authorized(s) {
-		next()
-	} else {
-		s.emit("error", util.AuthError)
-	}
+  if authorized(s) {
+    next()
+  } else {
+    s.emit("error", AuthError)
+  }
 })
 ```
 
@@ -37,12 +37,12 @@ import socketio "github.com/googollee/go-socket.io"
 io, _ = socketio.NewServer(nil)
 
 io.OnEvent("/", "some-event", requireAuth(func(s socketio.Conn) {
-	// some event handler code
+  // some event handler code
 }))
 
 
 io.OnEvent("/", "another-event", requireAuth(func(s socketio.Conn, arg string) {
-	// another event handler code
+  // another event handler code
 }))
 ```
 
@@ -53,8 +53,8 @@ import middleware "github.com/fakundo/go-middleware"
 
 ...
 
-io.OnEvent("/", "event", middleware.Use(middlewareOne, middlewareTwo, requireAuth, func(s socketio.Conn, name string) {
-	// event handler code
+io.OnEvent("/", "event", middleware.Use(someMiddleware, requireAuth, func(s socketio.Conn) {
+  // event handler code
 }))
 ```
 
